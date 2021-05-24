@@ -68,6 +68,7 @@ EOF
 	head ./REPORT $(find ${PWD} -name '*.err' | sort) > ${RESULTS_DIR}/libc_test_failures_err.log
 }
 
+RESULTS_DIR=$(readlink -f ${ARTIFACTS})
 # needs google benchmark changes to count hexagon cycles in order to build:
 #test_llvm
 # skipped for now
