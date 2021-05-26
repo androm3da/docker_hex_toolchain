@@ -1,0 +1,46 @@
+name: Nightlies
+
+on:
+  push:
+  schedule:
+    - cron: '0 4 * * *'
+
+env:
+  ROOT_INSTALL: ./hex_rootfs/
+  TOOLCHAIN_INSTALL: ./hex_install/
+  RESULTS: ./hex_tests/
+  CCACHE_DIR: ${{ github.workspace }}/llvm_ccache
+  LLVM_VERSION: 10
+  PURGE_BUILDS: 1
+  MAKE_TARBALLS: 1
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - name: ccache cache files
+        uses: actions/cache@v1.1.0
+        with:
+          path: ${{ github.workspace }}/llvm_ccache
+          key: llvm-${{ runner.os }}-master-${{ hashFiles('**/*.o') }}
+          restore-keys: |
+                  llvm-${{ runner.os }}-master-
+                  llvm-
+
+      - name: install deps
+        run:  sudo apt update -qq && sudo apt install -y -qq ccache ninja-build build-essential curl xz-utils cmake ninja-build python-dev flex bison libxml2-dev
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: ccache init
+        run:  ccache --zero-stats ; ccache --show-stats || true
+      - name: build tools
+        run:  docker buildx build --tag hex-tools .
+      - name: ccache summary
+        run:  ccache --show-stats || true
+      - name: Upload test results
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v2-preview
+        with:
+          name: hex_tests
+          path: hex_tests/

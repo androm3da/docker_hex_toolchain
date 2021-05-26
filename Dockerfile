@@ -1,30 +1,33 @@
 
 FROM ubuntu:16.04
 
+ARG DEBIAN_FRONTEND=noninteractive
+ARG TZ=US/Chicago
+
 # Install common build utilities
 RUN apt update && \
-    DEBIAN_FRONTEND=noninteractive apt install -yy eatmydata && \
-    DEBIAN_FRONTEND=noninteractive eatmydata \
-    apt install -y --no-install-recommends \
+    apt install -yy eatmydata && \
+    eatmydata \
+      apt install -y --no-install-recommends \
         bison \
         cmake \
         flex \
         rsync \
         wget \
-	build-essential \
-	curl \
-	xz-utils \
-	ca-certificates \
-	ccache \
-	git \
-	software-properties-common \
+        build-essential \
+        curl \
+        xz-utils \
+        ca-certificates \
+        ccache \
+        git \
+        software-properties-common \
         bc \
-	unzip
+        unzip
 
 RUN cat /etc/apt/sources.list | sed "s/^deb\ /deb-src /" >> /etc/apt/sources.list
 
 RUN apt update && \
-    DEBIAN_FRONTEND=noninteractive eatmydata \
+    eatmydata \
     apt build-dep -yy --arch-only qemu clang python
 
 ENV TOOLCHAIN_INSTALL /usr/local/clang+llvm-July-2021-cross-hexagon-unknown-linux-musl/
