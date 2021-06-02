@@ -29,7 +29,7 @@ jobs:
                   llvm-
 
       - name: install deps
-        run:  sudo apt update -qq && sudo apt install -y -qq ccache ninja-build build-essential curl xz-utils cmake ninja-build python-dev flex bison libxml2-dev docker
+        run:  sudo apt update -qq && sudo apt install -y -qq ccache ninja-build build-essential curl xz-utils cmake ninja-build python-dev flex bison libxml2-dev docker.io
       - name: ccache init
         run:  ccache --zero-stats ; ccache --show-stats || true
       - name: build tools
