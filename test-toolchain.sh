@@ -43,7 +43,7 @@ test_qemu() {
 
 test_libc() {
 	cd ${BASE}
-	mkdir -p obj_libc-test/
+	mkdir obj_libc-test/
 	cd obj_libc-test
 
 	rm -f ../libc-test/config.mak
@@ -68,19 +68,36 @@ EOF
 	head ./REPORT $(find ${PWD} -name '*.err' | sort) > ${RESULTS_DIR}/libc_test_failures_err.log
 }
 
+TOOLCHAIN_INSTALL_REL=${TOOLCHAIN_INSTALL}
+TOOLCHAIN_INSTALL=$(readlink -f ${TOOLCHAIN_INSTALL})
+TOOLCHAIN_BIN=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/bin
+HEX_SYSROOT=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu/target/hexagon-unknown-linux-musl
+HEX_TOOLS_TARGET_BASE=${HEX_SYSROOT}/usr
+ROOT_INSTALL_REL=${ROOT_INSTALL}
+ROOTFS=$(readlink -f ${ROOT_INSTALL})
 RESULTS_DIR=$(readlink -f ${ARTIFACTS})
-# needs google benchmark changes to count hexagon cycles in order to build:
-#test_llvm
-# skipped for now
-#test_libc 2>&1 | tee ${RESULTS_DIR}/libc_test_detail.log
-qemu_result=99
-test_qemu
 
+BASE=$(readlink -f ${PWD})
 
+MUSL_CFLAGS="-G0 -O0 -mv65 -fno-builtin  --target=hexagon-unknown-linux-musl"
 
-if [[ ${MAKE_TARBALLS-0} -eq 1 ]]; then
-    XZ_OPT="-8 --threads=0" tar cJf ${BASE}/hexagon_tests_${STAMP}.tar.xz  -C $(dirname ${RESULTS_DIR}) $(basename ${RESULTS_DIR})
+# Workaround, 'C()' macro results in switch over bool:
+MUSL_CFLAGS="${MUSL_CFLAGS} -Wno-switch-bool"
+# Workaround, this looks like a bug/incomplete feature in the
+# hexagon compiler backend:
+MUSL_CFLAGS="${MUSL_CFLAGS} -Wno-unsupported-floating-point-opt"
 
+libc_result=0
+qemu_result=0
+
+if [[ ${TEST_TOOLCHAIN-0} -eq 1 ]]; then
+	# needs google benchmark changes to count hexagon cycles in order to build:
+	#test_llvm
+	# skipped for now
+	libc_result=99
+	#test_libc 2>&1 | tee ${RESULTS_DIR}/libc_test_detail.log
+	qemu_result=99
+	test_qemu
 fi
 
 echo done

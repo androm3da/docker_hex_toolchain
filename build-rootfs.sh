@@ -112,7 +112,7 @@ build_dropbear() {
 
 build_kernel() {
 	cd ${BASE}
-	mkdir obj_linux
+	mkdir -p obj_linux
 	cd linux
 	make -j $(nproc) \
 		O=../obj_linux ARCH=hexagon \
@@ -181,15 +181,14 @@ build_busybox
 #	ld.lld: error: crt1.c:(function _start_c: .text._start_c+0x5C): relocation R_HEX_B22_PCREL out of range: 2688980 is not in [-2097152, 2097151]; references __libc_start_main
 #	>>> defined in ... hexagon-unknown-linux-musl/usr/lib/libc.so
 #build_canadian_clang
-rm -rf obj_*
 
 cat <<'EOF' > ${ROOTFS}/init
 #!/bin/sh
- 
+
 mount -t proc none /proc
 mount -t sysfs none /sys
 mount -t debugfs none /sys/kernel/debug
- 
+
 exec /bin/sh
 EOF
 chmod +x ${ROOTFS}/init
@@ -200,6 +199,10 @@ if [[ ${MAKE_TARBALLS-0} -eq 1 ]]; then
 
     cd ${RESULTS_DIR}
     sha256sum hexagon_rootfs_${STAMP}.tar.xz > hexagon_rootfs_${STAMP}.tar.xz.sha256
+fi
+
+if [[ ${TEST_TOOLCHAIN-0} -eq 0 ]]; then
+		rm -rf ${BASE}/obj_*
     rm -rf ${ROOT_INSTALL}
     rm -rf ${TOOLCHAIN_INSTALL}
 fi

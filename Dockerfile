@@ -27,7 +27,7 @@ RUN apt update && \
     DEBIAN_FRONTEND=noninteractive eatmydata \
     apt build-dep -yy --arch-only qemu clang python
 
-ENV TOOLCHAIN_INSTALL /usr/local/clang+llvm-May-2021-cross-hexagon-unknown-linux-musl/
+ENV TOOLCHAIN_INSTALL /usr/local/clang+llvm-July-2021-cross-hexagon-unknown-linux-musl/
 ENV ROOT_INSTALL /usr/local/hexagon-unknown-linux-musl-rootfs
 ENV ARTIFACTS /usr/local/hexagon-artifacts
 ENV MAKE_TARBALLS 1
@@ -36,14 +36,17 @@ ENV CMAKE_VER 3.16.6
 ENV CMAKE_URL https://github.com/Kitware/CMake/releases/download/v3.16.6/cmake-3.16.6-Linux-x86_64.tar.gz
 
 # 630818a850f754af852247c775280de6fde8560e ~April 2021, after cs0/cs1 update
+# cc38f8939da4aec85e7d0ef4de412e30d4de5a14 ~July 2021, after hexagon_types.h update
 # d28af7c654d8db0b68c175db5ce212d74fb5e9bc aka llvmorg-12.0.0
-ENV LLVM_SRC_URL https://github.com/llvm/llvm-project/archive/630818a850f754af852247c775280de6fde8560e.tar.gz
+ENV LLVM_SRC_URL https://github.com/llvm/llvm-project/archive/cc38f8939da4aec85e7d0ef4de412e30d4de5a14.tar.gz
 # 15106f7dc3290ff3254611f265849a314a93eb0e qemu/qemu 2 May 2021, hexagon scalar core support
 # 628eea52b33dae2ea2112c85c2c95e9f8832b846 quic/qemu 23 Apr 2021, latest hexagon core + HVX support
-ENV QEMU_SHA 15106f7dc3290ff3254611f265849a314a93eb0e
+# 0a0f70dd3bec32212e7996feb8371788bc00d183 quic/qemu 3 Jul 2021, bugfixes
+ARG QEMU_REPO=https://github.com/qemu/qemu
+ARG QEMU_SHA=0a0f70dd3bec32212e7996feb8371788bc00d183
+
 ENV MUSL_SRC_URL https://github.com/quic/musl/archive/aff74b395fbf59cd7e93b3691905aa1af6c0778c.tar.gz
-#ENV LINUX_SRC_URL https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.13-rc2.tar.xz
-ENV LINUX_SRC_URL https://git.kernel.org/torvalds/t/linux-5.13-rc2.tar.gz
+ENV LINUX_SRC_URL https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.13.tar.xz
 
 ENV PYTHON_SRC_URL https://www.python.org/ftp/python/3.9.5/Python-3.9.5.tar.xz
 ADD get-host-clang-cmake-python.sh /root/hexagon-toolchain/get-host-clang-cmake-python.sh
@@ -52,8 +55,13 @@ RUN cd /root/hexagon-toolchain && ./get-host-clang-cmake-python.sh
 ADD build-toolchain.sh /root/hexagon-toolchain/build-toolchain.sh
 RUN --mount=type=cache,target=/tmp/ccache/ \
 	 export CCACHE_DIR=/tmp/ccache && \
-         cd /root/hexagon-toolchain && ./build-toolchain.sh May-2021
+         cd /root/hexagon-toolchain && ./build-toolchain.sh July-2021
+
+ARG TEST_TOOLCHAIN=1
 
 ENV BUSYBOX_SRC_URL https://busybox.net/downloads/busybox-1.33.1.tar.bz2
 ADD build-rootfs.sh /root/hexagon-toolchain/build-rootfs.sh
 RUN cd /root/hexagon-toolchain && ./build-rootfs.sh
+
+ADD test-toolchain.sh /root/hexagon-toolchain/test-toolchain.sh
+RUN cd /root/hexagon-toolchain && ./test-toolchain.sh

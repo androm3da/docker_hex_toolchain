@@ -67,7 +67,7 @@ build_clang_rt() {
 
 config_kernel() {
 	cd ${BASE}
-	mkdir -p obj_linux
+	mkdir obj_linux
 	cd linux
 	make O=../obj_linux ARCH=hexagon \
 		CROSS_COMPILE=hexagon-unknown-linux-musl- \
@@ -213,7 +213,7 @@ get_src_tarballs() {
 	rm ../llvm-project.tar.xz
 	cd -
 
-	git clone https://github.com/qemu/qemu
+	git clone --depth=1 ${QEMU_REPO-https://github.com/qemu/qemu}
 	cd qemu
 	git checkout  ${QEMU_SHA}
 	cd -
@@ -279,8 +279,6 @@ build_musl
 build_qemu
 
 build_libs
-
-purge_builds
 
 cd ${BASE}
 if [[ ${MAKE_TARBALLS-0} -eq 1 ]]; then
