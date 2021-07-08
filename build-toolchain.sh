@@ -15,6 +15,7 @@ build_llvm_clang() {
 		-DLLVM_CCACHE_BUILD:BOOL=ON \
 		-DLLVM_ENABLE_LLD:BOOL=ON \
 		-DLLVM_ENABLE_LIBCXX:BOOL=ON \
+		-DLLVM_ENABLE_TERMINFO:BOOL=OFF \
 		-DLLVM_ENABLE_ASSERTIONS:BOOL=ON \
 		-DLLVM_ENABLE_PIC:BOOL=OFF \
 		-DLLVM_TARGETS_TO_BUILD:STRING="Hexagon" \
@@ -213,7 +214,7 @@ get_src_tarballs() {
 	rm ../llvm-project.tar.xz
 	cd -
 
-	git clone --depth=1 ${QEMU_REPO-https://github.com/qemu/qemu}
+	git clone ${QEMU_REPO-https://github.com/qemu/qemu}
 	cd qemu
 	git checkout  ${QEMU_SHA}
 	cd -
