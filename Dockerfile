@@ -42,7 +42,7 @@ ENV LLVM_SRC_URL https://github.com/llvm/llvm-project/archive/cc38f8939da4aec85e
 # 15106f7dc3290ff3254611f265849a314a93eb0e qemu/qemu 2 May 2021, hexagon scalar core support
 # 628eea52b33dae2ea2112c85c2c95e9f8832b846 quic/qemu 23 Apr 2021, latest hexagon core + HVX support
 # 0a0f70dd3bec32212e7996feb8371788bc00d183 quic/qemu 3 Jul 2021, bugfixes
-ARG QEMU_REPO=https://github.com/qemu/qemu
+ARG QEMU_REPO=https://github.com/quic/qemu
 ARG QEMU_SHA=0a0f70dd3bec32212e7996feb8371788bc00d183
 
 ENV MUSL_SRC_URL https://github.com/quic/musl/archive/aff74b395fbf59cd7e93b3691905aa1af6c0778c.tar.gz
