@@ -36,6 +36,8 @@ jobs:
         run:  ccache --zero-stats ; ccache --show-stats || true
       - name: build tools
         run:  docker buildx build --tag hex-tools .
+      - name: get test results from container
+        run:  docker run hex-tools tar c --directory /usr/local/hexagon-artifacts test_results | tar x --directory ${RESULTS}
       - name: ccache summary
         run:  ccache --show-stats || true
       - name: Upload test results
