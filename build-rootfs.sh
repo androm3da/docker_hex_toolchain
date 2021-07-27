@@ -165,10 +165,6 @@ set -x
 export PATH=${TOOLCHAIN_BIN}:${PATH}
 cp -ra ${HEX_SYSROOT}/usr ${ROOTFS}/
 
-. /etc/profile.d/cmake-latest.sh
-. /etc/profile.d/ninja-latest.sh
-. /etc/profile.d/clang-latest.sh
-. /etc/profile.d/py3-latest.sh
 get_src_tarballs
 
 build_kernel

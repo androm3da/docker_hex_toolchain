@@ -1,0 +1,42 @@
+name: Nightlies
+
+on:
+  push:
+  schedule:
+    - cron: '0 4 * * *'
+
+env:
+  TOOLCHAIN_INSTALL: ./hex_install/
+  ARTIFACTS: ./hex_artifacts/
+  LLVM_VERSION: 9
+
+jobs:
+  build:
+    runs-on: ubuntu-16.04
+    steps:
+
+      - name: Check Out Repo
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Build Hexagon
+        uses: docker/build-push-action@v2
+        with:
+          context: ./
+          file: ./Dockerfile
+          tags: hexagon:latest
+          load: true
+
+      - name: Upload tools
+        uses: actions/upload-artifact@v2-preview
+        with:
+          name: hex_tools
+          path: hexagon_tools*.tar*
+
+      - name: Upload rootfs
+        uses: actions/upload-artifact@v2-preview
+        with:
+          name: hex_rootfs
+          path: hexagon_rootfs*.tar*

@@ -19,6 +19,7 @@ build_llvm_clang() {
 		-DLLVM_ENABLE_ASSERTIONS:BOOL=ON \
 		-DLLVM_ENABLE_PIC:BOOL=OFF \
 		-DLLVM_TARGETS_TO_BUILD:STRING="Hexagon" \
+		-DLLVM_PYTHON_EXECUTABLE:STRING=$(which python3.6) \
 		-DLLVM_DEFAULT_TARGET_TRIPLE:STRING="hexagon-unknown-musl-linux" \
 		-DCLANG_DEFAULT_CXX_STDLIB:STRING="libc++" \
 		-DCLANG_DEFAULT_OBJCOPY:STRING="llvm-objcopy" \
@@ -150,6 +151,7 @@ build_libs() {
 		-DLLVM_INCLUDE_BENCHMARKS:BOOL=OFF \
 		-DLLVM_BUILD_BENCHMARKS:BOOL=OFF \
 		-DLLVM_INCLUDE_RUNTIMES:BOOL=OFF \
+		-DLLVM_PYTHON_EXECUTABLE:STRING=$(which python3.6) \
 		-DLLVM_ENABLE_PROJECTS:STRING="libcxx;libcxxabi;libunwind" \
 		-DLLVM_ENABLE_LIBCXX:BOOL=ON \
 		-DLLVM_BUILD_RUNTIME:BOOL=ON \
@@ -176,7 +178,7 @@ build_qemu() {
 	cd obj_qemu
 	../qemu/configure --disable-fdt --disable-capstone --disable-guest-agent \
 	                  --disable-containers \
-	                  --python=/opt/python3/bin/python3 \
+	                  --python=$(which python3.6) \
 		--target-list=hexagon-linux-user --prefix=${TOOLCHAIN_INSTALL}/x86_64-linux-gnu \
 
 #	--cc=clang \
@@ -204,34 +206,6 @@ purge_builds() {
 	rm -rf ${BASE}/obj_*/
 }
 
-get_src_tarballs() {
-	cd ${BASE}
-
-	wget --quiet ${LLVM_SRC_URL} -O llvm-project.tar.xz
-	mkdir llvm-project
-	cd llvm-project
-	tar xf ../llvm-project.tar.xz --strip-components=1
-	rm ../llvm-project.tar.xz
-	cd -
-
-	git clone ${QEMU_REPO-https://github.com/qemu/qemu}
-	cd qemu
-	git checkout  ${QEMU_SHA}
-	cd -
-
-	wget --quiet ${MUSL_SRC_URL} -O musl.tar.xz
-	mkdir musl
-	cd musl
-	tar xf ../musl.tar.xz --strip-components=1
-	rm ../musl.tar.xz
-	cd -
-
-	wget --quiet ${LINUX_SRC_URL} -O linux.tar.xz
-	mkdir linux
-	cd linux
-	tar xf ../linux.tar.xz --strip-components=1
-	cd -
-}
 
 TOOLCHAIN_INSTALL_REL=${TOOLCHAIN_INSTALL}
 TOOLCHAIN_INSTALL=$(readlink -f ${TOOLCHAIN_INSTALL})
@@ -257,17 +231,11 @@ MUSL_CFLAGS="${MUSL_CFLAGS} -Wno-switch-bool"
 # hexagon compiler backend:
 MUSL_CFLAGS="${MUSL_CFLAGS} -Wno-unsupported-floating-point-opt"
 
-
-. /etc/profile.d/cmake-latest.sh
-. /etc/profile.d/ninja-latest.sh
-. /etc/profile.d/clang-latest.sh
-. /etc/profile.d/py3-latest.sh
-which ninja
-which cmake
 which clang
-which python
-which python3
-get_src_tarballs
+clang --version
+ninja --version
+cmake --version
+python3.6 --version
 
 build_llvm_clang
 ccache --show-stats
