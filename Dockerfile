@@ -49,7 +49,7 @@ RUN apt update && \
 
 ENV TOOLCHAIN_INSTALL /usr/local/clang+llvm-Aug-2021-cross-hexagon-unknown-linux-musl/
 ENV ROOT_INSTALL /usr/local/hexagon-unknown-linux-musl-rootfs
-ENV ARTIFACTS_BASE /usr/local/hexagon-artifacts
+ENV ARTIFACT_BASE /usr/local/hexagon-artifacts
 ARG ARTIFACT_TAG=untagged
 ENV MAKE_TARBALLS 1
 #ENV HOST_LLVM_VERSION 10
